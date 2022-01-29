@@ -127,18 +127,21 @@ namespace RepositoryLayer.Services
 
         }
 
-        public bool ResetPassword(ResetModel EmailId)
+        public bool ResetPassword(string Email, string ConfirmPassword, string NewPassword)
         {
             try
             {
-                var ValidLogin = this.context.Users.Where(x =>( x.Email == EmailId.ConfirmPassword));
-                if (ValidLogin != null)
+                if (NewPassword.Equals(ConfirmPassword))
                 {
-                    context.Users.Attach((User)ValidLogin);
+                    User user = context.Users.Where(e => e.Email == Email).FirstOrDefault();
+                    user.Password = ConfirmPassword;
                     context.SaveChanges();
                     return true;
                 }
-                return false;
+                else
+                {
+                    return false;
+                }
 
             }
             catch (Exception)

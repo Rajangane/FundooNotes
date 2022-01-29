@@ -66,13 +66,12 @@ namespace BusinessLayer.Services
             }
         }
 
-        public bool ResetPassword(ResetModel EmailId)
+        public bool ResetPassword(string Email, string ConfirmPassword, string NewPassword)
         {
             try
             {
-                return UserRL.ResetPassword(EmailId);
-            
-
+                return UserRL.ResetPassword(Email, ConfirmPassword,NewPassword);
+           
             }
             catch (Exception)
             {

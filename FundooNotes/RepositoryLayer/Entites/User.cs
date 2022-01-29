@@ -10,12 +10,13 @@ namespace RepositoryLayer.Entites
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
         public DateTime? CreatedAt { get; set; }
-        public DateTime? ModifiedAt { get; set; }    
+        public DateTime? ModifiedAt { get; set; }
+        public string NewPassword { get; internal set; }
     }
 }

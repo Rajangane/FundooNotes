@@ -39,6 +39,8 @@ namespace FundooNotes
             services.AddControllers();
             services.AddTransient<IUserBL, UserBL>();
             services.AddTransient<IUserRL, UserRL>();
+            services.AddTransient<INoteBL, NoteBL>();
+            services.AddTransient<INoteRL, NoteRL>();
 
             services.AddSwaggerGen(c =>
             {
@@ -61,7 +63,7 @@ namespace FundooNotes
                 c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-               {
+                {
                 { jwtSecurityScheme, Array.Empty<string>() }
                });
 

@@ -63,11 +63,11 @@ namespace FundooNotes.Controllers
         }
 
         [HttpPost("Reset")]
-        public IActionResult ResetPassword(ResetModel Email)
+        public IActionResult ResetPassword(string Email, string ConfirmPassword, string NewPassword)
         {
             try
             {
-                if (UserBL.ResetPassword(Email))
+                if (UserBL.ResetPassword(Email,ConfirmPassword,NewPassword))
 
                 {
                     return this.Ok(new { Success = true, message = "Reset Sucessfull" });
