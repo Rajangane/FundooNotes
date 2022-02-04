@@ -1,4 +1,7 @@
-﻿using CommonLayer.Models;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using CommonLayer.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using RepositoryLayer.AppContexts;
 using RepositoryLayer.Entites;
@@ -10,31 +13,31 @@ using System.Text;
 
 namespace RepositoryLayer.Services
 {
-    public class NoteRL : INoteRL
+    public class NotesRL : INotesRL
     {
-        private readonly contexts context1;
+        private readonly Context context;
         private readonly IConfiguration _config;
-        public NoteRL(contexts context, IConfiguration config)
+        public NotesRL(Context context, IConfiguration config)
         {
-            this.context1 = context;
+            this.context = context;
             _config = config;
         }
-        public string ArchiveORUnarchiveNote(long noteid)
+        public bool ArchiveORUnarchiveNote(long UserId, long noteid)
         {
             try
             {
-                var Note = this.context1.Notes.FirstOrDefault(x => x.NoteId == noteid);
+                var Note = this.context.Notes.FirstOrDefault(x => x.Id == UserId && x.NoteId == noteid);
                 if (Note.IsArchive == true)
                 {
-                    Note.IsArchive = false;
-                    this.context1.SaveChanges();
-                    return "Note Unarchived";
+                   Note.IsArchive = false;
+                    this.context.SaveChanges();
+                    return true;
                 }
                 else
                 {
                     Note.IsArchive = true;
-                    this.context1.SaveChanges();
-                    return "Note Archived";
+                    this.context.SaveChanges();
+                    return false;
                 }
             }
             catch (Exception)
@@ -45,16 +48,35 @@ namespace RepositoryLayer.Services
 
         public string ColorNote(long noteId, string color)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var Note = this.context.Notes.FirstOrDefault(x => x.NoteId == noteId);
+                if (Note.Color != color)
+                {
+                    Note.Color = color;
+                    this.context.SaveChanges();
+                    return "Note color is changed.";
+                }
+                else
+                {
+                    Note.IsTrash = true;
+                    this.context.SaveChanges();
+                    return "choose different color";
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public bool DeleteNotes(int id)
         {
             try
             {
-                var ValidNote = this.context1.Notes.Where(Y => Y.NoteId == id).FirstOrDefault();
-                this.context1.Notes.Remove(ValidNote);
-                int result = this.context1.SaveChanges();
+                var ValidNote = this.context.Notes.Where(Y => Y.NoteId == id).FirstOrDefault();
+                this.context.Notes.Remove(ValidNote);
+                int result = this.context.SaveChanges();
                 if (result > 0)
                 {
                     return true;
@@ -67,11 +89,12 @@ namespace RepositoryLayer.Services
             }
         }
 
-        public bool AddNote(NoteModel notes, int UserId)
+        public bool AddNote(NoteModel notes, long UserId)
         {
             try
             {
-                Note newNotes = new Note();
+                Notes newNotes = new Notes();
+                newNotes.Id = UserId;
                 newNotes.Title = notes.Title;
                 newNotes.Message = notes.Message;
                 newNotes.Remainder = notes.Remainder;
@@ -80,12 +103,11 @@ namespace RepositoryLayer.Services
                 newNotes.IsArchive = notes.IsArchive;
                 newNotes.IsPin = notes.IsPin;
                 newNotes.IsTrash = notes.IsTrash;
-                newNotes.Id = UserId;
                 newNotes.Createat = notes.Createat;
                 //Adding the data to database
-                this.context1.Notes.Add(newNotes);
+                this.context.Notes.Add(newNotes);
                 //Save the changes in database
-                int result = this.context1.SaveChanges();
+                int result = this.context.SaveChanges();
                 if (result > 0)
                 {
                     return true;
@@ -98,26 +120,26 @@ namespace RepositoryLayer.Services
             }
             
         }
-        public IEnumerable<Note> GetAllNotesOfUser(int UserId)
+        public IEnumerable<Notes> GetAllNotesOfUser(int UserId)
         {
-            return context1.Notes.Where(Y => Y.Id == UserId).ToList();
+            return context.Notes.Where(Y => Y.Id == UserId).ToList();
         }
 
         public string PinORUnPinNote(long noteid)
         {
             try
             {
-                var Note = this.context1.Notes.FirstOrDefault(x => x.NoteId == noteid);
+                var Note = this.context.Notes.FirstOrDefault(x => x.NoteId == noteid);
                 if (Note.IsPin == true)
                 {
                     Note.IsPin = false;
-                    this.context1.SaveChanges();
+                    this.context.SaveChanges();
                     return "Note is UnPinned";
                 }
                 else
                 {
                     Note.IsPin = true;
-                    this.context1.SaveChanges();
+                    this.context.SaveChanges();
                     return "Note is Pinned";
                 }
             }
@@ -131,17 +153,17 @@ namespace RepositoryLayer.Services
         {
             try
             {
-                var Note = this.context1.Notes.FirstOrDefault(x => x.NoteId == noteid);
+                var Note = this.context.Notes.FirstOrDefault(x => x.NoteId == noteid);
                 if (Note.IsTrash == true)
                 {
                     Note.IsTrash = false;
-                    this.context1.SaveChanges();
+                    this.context.SaveChanges();
                     return "Note is Restored.";
                 }
                 else
                 {
                     Note.IsTrash = true;
-                    this.context1.SaveChanges();
+                    this.context.SaveChanges();
                     return "Note is Trash";
                 }
             }
@@ -155,7 +177,7 @@ namespace RepositoryLayer.Services
         {
             try
             {
-                var UpdateNote = this.context1.Notes.Where(Y => Y.NoteId == Noteid).FirstOrDefault();
+                var UpdateNote = this.context.Notes.Where(Y => Y.NoteId == Noteid).FirstOrDefault();
                 if (UpdateNote != null)
                 {
                     UpdateNote.Title = notes.Title;
@@ -168,7 +190,7 @@ namespace RepositoryLayer.Services
                     UpdateNote.IsTrash = notes.IsTrash;
                     UpdateNote.Createat = notes.Createat;
                 }
-                var result = this.context1.SaveChanges();
+                var result = this.context.SaveChanges();
                 if (result > 0)
                 {
                     return notes;
@@ -180,5 +202,40 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+
+        public bool UploadImage(long noteId, IFormFile image)
+        {
+            try
+            {
+                var notes = this.context.Notes.FirstOrDefault(x => x.NoteId == noteId);
+                if (notes != null)
+                {
+                    Account account = new Account
+                    (
+                    _config["CloudinaryAccount:CloudName"],
+                    _config["CloudinaryAccount:ApiKey"],
+                    _config["CloudinaryAccount:ApiSecret"]
+                    );
+                    var path = image.OpenReadStream();
+                    Cloudinary cloudinary = new Cloudinary(account);
+                    ImageUploadParams uploadParams = new ImageUploadParams()
+                    {
+                        File = new FileDescription(image.FileName, path)
+                    };
+                    var uploadResult = cloudinary.Upload(uploadParams);
+                    context.Notes.Attach(notes);
+                    notes.Image = uploadResult.Uri.ToString();
+                    context.SaveChanges();
+                    return true;
+                }
+                else
+                    return false;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

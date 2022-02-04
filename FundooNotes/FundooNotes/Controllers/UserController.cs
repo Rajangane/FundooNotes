@@ -44,8 +44,8 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                string token = UserBL.GenerateJWTToken(userLogin.Email);
-                if (UserBL.Login(userLogin))
+                var token = UserBL.Login(userLogin);
+                if (token != null)
 
                 {
                     return this.Ok(new { Success = true, message = "login Sucessfull",Token=token });
@@ -100,7 +100,7 @@ namespace FundooNotes.Controllers
                 throw;
             }
         }
-
+    
 
     }
 }

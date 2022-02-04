@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.Interfaces;
 using CommonLayer.Models;
+using Microsoft.AspNetCore.Http;
 using RepositoryLayer.Entites;
 using RepositoryLayer.Interfaces;
 using System;
@@ -8,15 +9,15 @@ using System.Text;
 
 namespace BusinessLayer.Services
 {
-    public class NoteBL : INoteBL
+    public class NotesBL : INotesBL
     {
-        INoteRL NoteRL;
-        public NoteBL(INoteRL NoteRL)
+        INotesRL NoteRL;
+        public NotesBL(INotesRL NoteRL)
         {
             this.NoteRL = NoteRL;
         }
 
-        public bool AddNote(NoteModel notes, int UserId)
+        public bool AddNote(NoteModel notes, long UserId)
         {
             try
             {
@@ -29,11 +30,13 @@ namespace BusinessLayer.Services
             }
         }
 
-        public string ArchiveORUnarchiveNote(long noteid)
+        
+
+        public bool ArchiveORUnarchiveNote(long userId, long noteid)
         {
             try
             {
-                return this.NoteRL.ArchiveORUnarchiveNote(noteid);
+                return this.NoteRL.ArchiveORUnarchiveNote(userId,noteid);
             }
             catch (Exception)
             {
@@ -43,7 +46,14 @@ namespace BusinessLayer.Services
 
         public string ColorNote(long noteId, string color)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return this.NoteRL.ColorNote(noteId, color);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public bool DeleteNotes(int id)
@@ -59,7 +69,7 @@ namespace BusinessLayer.Services
             }
         }
 
-        public IEnumerable<Note> GetAllNotesOfUser(int UserId)
+        public IEnumerable<Notes> GetAllNotesOfUser(int UserId)
         {
             try
             {
@@ -106,6 +116,17 @@ namespace BusinessLayer.Services
             catch (Exception)
             {
 
+                throw;
+            }
+        }
+        public bool UploadImage(long noteId, IFormFile image)
+        {
+            try
+            {
+                return this.NoteRL.UploadImage(noteId, image);
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }

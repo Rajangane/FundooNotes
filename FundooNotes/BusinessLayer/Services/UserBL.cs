@@ -26,7 +26,7 @@ namespace BusinessLayer.Services
                 throw;
             }
         }
-        public bool Login(UserLogin login)
+        public string Login(UserLogin login)
         {
           
             try
@@ -40,11 +40,11 @@ namespace BusinessLayer.Services
             }
 
         }
-        public string GenerateJWTToken(string EmailId)
+        public string GenerateJWTToken(string EmailId, long userId)
         {
             try
             {
-                return UserRL.GenerateJWTToken(EmailId);
+                return UserRL.GenerateJWTToken(EmailId,userId);
             }
             catch (Exception)
             {

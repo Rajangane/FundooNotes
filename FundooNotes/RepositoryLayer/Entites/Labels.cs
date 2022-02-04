@@ -6,17 +6,18 @@ using System.Text;
 
 namespace RepositoryLayer.Entites
 {
-    public class User
-    {  
+    public class Labels
+    {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long LabelID { get; set; }
+        public string LabelName { get; set; }
+        [ForeignKey("notes")]
+        public long NoteID { get; set; }
+        [ForeignKey("user")]
         public long Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? ModifiedAt { get; set; }
+        public virtual User user { get; set; }
+        public virtual Notes notes { get; set; }
 
     }
 }

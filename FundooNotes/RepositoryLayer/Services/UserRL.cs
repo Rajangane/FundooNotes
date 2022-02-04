@@ -15,10 +15,10 @@ namespace RepositoryLayer.Services
 {
     public class UserRL : IUserRL
     {
-        contexts context;
+        Context context;
         private readonly IConfiguration configuration;
 
-        public UserRL(contexts context,IConfiguration config)
+        public UserRL(Context context,IConfiguration config)
         {
             this.context = context;
             this.configuration = config;
@@ -32,7 +32,8 @@ namespace RepositoryLayer.Services
                 newuser.FirstName = user.Firstname;
                 newuser.LastName = user.Lastname;
                 newuser.Email = user.Email;
-                newuser.Password = user.Password;   
+               // newuser.Password = user.Password;
+                newuser.Password = EncryptPassword(user.Password);
                 context.Users.Add(newuser);
                 int result = context.SaveChanges();
                 if(result > 0)
@@ -51,31 +52,51 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-        public bool Login(UserLogin login)
+        public string EncryptPassword(string password)
         {
             try
             {
-                User newuser = new User();
-                var result = context.Users.Where(x => x.Email == login.Email && x.Password == login.Password).FirstOrDefault();
-                
+                byte[] encode = new byte[password.Length];
+                encode = Encoding.UTF8.GetBytes(password);
+                string encPassword = Convert.ToBase64String(encode);
+                return encPassword;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public string DecryptPassword(string encryptpwd)
+        {
+            try
+            {
+                UTF8Encoding encodepwd = new UTF8Encoding();
+                Decoder Decode = encodepwd.GetDecoder();
+                byte[] todecode_byte = Convert.FromBase64String(encryptpwd);
+                int charCount = Decode.GetCharCount(todecode_byte, 0, todecode_byte.Length);
+                char[] decoded_char = new char[charCount];
+                Decode.GetChars(todecode_byte, 0, todecode_byte.Length, decoded_char, 0);
+                string decryptpwd = new String(decoded_char);
+                return decryptpwd;
+            }
+            catch (Exception)
+            {
 
-                if (result != null)
-                {
-                    string token = "";
-                    UserResponse loginResponse = new UserResponse();
-                    token = GenerateJWTToken(login.Email);
-                    //loginResponse.Id = ValidLogin.Id;
-                    loginResponse.EmailId = login.Email;
-                    loginResponse.Token = token;
-
-                    
-                    return true;
-
-                }
+                throw;
+            }
+        }
+        public string Login(UserLogin userLogin)
+        {
+            try
+            {
+                User user = new User();
+                user = context.Users.Where(x => x.Email == userLogin.Email).FirstOrDefault();
+                string decPass = DecryptPassword(user.Password);
+                var id = user.Id;
+                if (decPass == userLogin.Password && user != null)
+                    return ClaimTokenByID(id);
                 else
-                {
-                    return false;
-                }
+                    return null;
 
             }
             catch (Exception)
@@ -84,22 +105,44 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-
-        public string GenerateJWTToken(string EmailId)
+        public string ClaimTokenByID(long Id)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var claims = new[] {
-           new Claim(ClaimTypes.Email,EmailId),
-           };
-            var token = new JwtSecurityToken(configuration["Jwt:Issuer"], EmailId,
-              claims,
-              expires: DateTime.Now.AddMinutes(20),
-              signingCredentials: credentials);
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(configuration["Jwt:key"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] { new Claim("Id", Id.ToString()) }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
-
-        
+        public string GenerateJWTToken(string email, long userId)
+        {
+            try
+            {
+                var loginTokenHandler = new JwtSecurityTokenHandler();
+                var loginTokenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+                var loginTokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new []
+                {
+                new Claim(ClaimTypes.Email, email),
+                new Claim("Id", userId.ToString())
+                }),
+                    Expires = DateTime.UtcNow.AddMinutes(15),
+                    SigningCredentials = new SigningCredentials(loginTokenKey, SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = loginTokenHandler.CreateToken(loginTokenDescriptor);
+                return loginTokenHandler.WriteToken(token);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+     
         public string ForgetPassword(string EmailId)
         {
             try
@@ -107,11 +150,9 @@ namespace RepositoryLayer.Services
                 var Email = context.Users.FirstOrDefault(e => e.Email == EmailId);  
                 if(Email != null)
                 {
-                    var token = GenerateJWTToken(Email.Email);
+                    var token = GenerateJWTToken(Email.Email,Email.Id);
                        new MSMQModel().MsmqSender(token);
                     return token;
-                   
-
                 }
                 else
                 {
@@ -151,5 +192,6 @@ namespace RepositoryLayer.Services
             }
            
         }
+       
     }
 }

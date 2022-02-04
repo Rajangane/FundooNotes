@@ -14,6 +14,7 @@ namespace CommonLayer.Models
         MessageQueue msg = new MessageQueue();
         public void MsmqSender(string Token)
         {
+            //setting the queue path where we want to store the message
             msg.Path = @".\private$\Token";
             if (!MessageQueue.Exists(msg.Path))
             {

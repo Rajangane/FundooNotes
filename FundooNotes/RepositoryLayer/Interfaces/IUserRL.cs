@@ -8,8 +8,8 @@ namespace RepositoryLayer.Interfaces
     public interface IUserRL
     {
         public bool Registration(UserRegistration user);
-        public bool Login(UserLogin login);
-        public string GenerateJWTToken(string EmailId);
+        public string Login(UserLogin login);
+        public string GenerateJWTToken(string EmailId, long userId);
         public string ForgetPassword(string EmailId);
         public bool ResetPassword(string Email, string ConfirmPassword, string NewPassword);
     }
