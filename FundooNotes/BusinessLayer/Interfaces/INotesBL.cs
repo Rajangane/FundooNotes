@@ -20,7 +20,9 @@ namespace BusinessLayer.Interfaces
         string ColorNote(long noteId, string color);
         bool ArchiveORUnarchiveNote(long userId, long noteid);
         IEnumerable<Notes> GetAllNotesOfUser(int UserId);
+        public IEnumerable<Notes> GetAllNotes();
         public bool UploadImage(long noteId, IFormFile image);
+        public IEnumerable<Notes> GetAllNotesUsingRedisCache();
 
     }
 }

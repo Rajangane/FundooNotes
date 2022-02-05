@@ -36,8 +36,6 @@ namespace FundooNotes
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<Context>(opts => opts.UseSqlServer(Configuration["ConnectionString:FundooDatabase"]));
-
-            //services.AddControllers().AddNewtonsoftJson(options =>options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             services.AddControllers();
             services.AddTransient<IUserBL, UserBL>();
             services.AddTransient<IUserRL, UserRL>();
@@ -49,53 +47,12 @@ namespace FundooNotes
             services.AddTransient<ILabelRL, LabelRL>();
 
 
-            //            services.AddSwaggerGen(c =>
-            //            {
-            //                var jwtSecurityScheme = new OpenApiSecurityScheme
-            //                {
-            //                    Scheme = "bearer",
-            //                    //BearerFormat = "JWT",
-            //                    Name = "JWT Authentication",
-            //                    In = ParameterLocation.Header,
-            //                    Type = SecuritySchemeType.Http,
-            //                    Description = "enter JWT Bearer token on textbox below!",
-
-            //                    Reference = new OpenApiReference
-            //                    {
-            //                        Id = JwtBearerDefaults.AuthenticationScheme,
-            //                        Type = ReferenceType.SecurityScheme
-            //                    }
-            //                };
-
-            //                c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
-
-            //                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            //{
-            //{ jwtSecurityScheme, Array.Empty<string>() }
-            //});
-            //            });
-
-            //            var tokenKey = Configuration.GetValue<string>("Jwt:Key");
-            //            var key = Encoding.ASCII.GetBytes(tokenKey);
-
-            //            services.AddAuthentication(x =>
-            //            {
-            //                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //            })
-            //            .AddJwtBearer(x =>
-            //            {
-            //                x.RequireHttpsMetadata = false;
-            //                x.SaveToken = true;
-            //                x.TokenValidationParameters = new TokenValidationParameters
-            //                {
-            //                    ValidateIssuerSigningKey = true,
-            //                    IssuerSigningKey = new SymmetricSecurityKey(key),
-            //                    ValidateIssuer = false,
-            //                    ValidateAudience = false
-            //                };
-            //            });
-
+            services.AddControllers();
+            services.AddMemoryCache();
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "localhost:6379";
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Welcome to FundooNotes" });
@@ -118,12 +75,12 @@ namespace FundooNotes
                 c.AddSecurityDefinition("Bearer", securitySchema);
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-{
-{ securitySchema, new[] { "Bearer" } }
-});
+                {
+                   { securitySchema, new[] { "Bearer" } }
+                });
 
             });
-            //var jwtSection = Configuration.GetSection("Jwt:Key");
+          
 
             services.AddAuthentication(option =>
             {

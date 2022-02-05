@@ -22,6 +22,12 @@ namespace RepositoryLayer.Services
             this.context = context;
             _config = config;
         }
+        /// <summary>
+        /// method to archive or Unarchive the notes
+        /// </summary>
+        /// <param name="UserId"></param>
+        /// <param name="noteid"></param>
+        /// <returns></returns>
         public bool ArchiveORUnarchiveNote(long UserId, long noteid)
         {
             try
@@ -45,7 +51,12 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-
+        /// <summary>
+        /// method to color the note
+        /// </summary>
+        /// <param name="noteId"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
         public string ColorNote(long noteId, string color)
         {
             try
@@ -69,11 +80,25 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+        /// <summary>
+        /// method to get all notes using Redis cache
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Notes> GetAllNotesUsingRedisCache()
+        {
+            return context.Notes.ToList();
+        }
+        /// <summary>
+        /// method to delete the note
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
 
         public bool DeleteNotes(int id)
         {
             try
             {
+
                 var ValidNote = this.context.Notes.Where(Y => Y.NoteId == id).FirstOrDefault();
                 this.context.Notes.Remove(ValidNote);
                 int result = this.context.SaveChanges();
@@ -88,7 +113,12 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-
+        /// <summary>
+        /// method to add the note
+        /// </summary>
+        /// <param name="notes"></param>
+        /// <param name="UserId"></param>
+        /// <returns></returns>
         public bool AddNote(NoteModel notes, long UserId)
         {
             try
@@ -120,11 +150,20 @@ namespace RepositoryLayer.Services
             }
             
         }
+        /// <summary>
+        /// method to get all notes by userId
+        /// </summary>
+        /// <param name="UserId"></param>
+        /// <returns></returns>
         public IEnumerable<Notes> GetAllNotesOfUser(int UserId)
         {
             return context.Notes.Where(Y => Y.Id == UserId).ToList();
         }
 
+        public IEnumerable<Notes> GetAllNotes()
+        {
+            return context.Notes.ToList();
+        }
         public string PinORUnPinNote(long noteid)
         {
             try
@@ -148,7 +187,11 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-
+        /// <summary>
+        /// method Trash or Restore the note
+        /// </summary>
+        /// <param name="noteid"></param>
+        /// <returns></returns>
         public string TrashOrRestoreNote(long noteid)
         {
             try
@@ -172,7 +215,12 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-
+        /// <summary>
+        /// method to Update a note
+        /// </summary>
+        /// <param name="notes"></param>
+        /// <param name="Noteid"></param>
+        /// <returns></returns>
         public NoteModel UpdateNotes(NoteModel notes, long Noteid)
         {
             try
@@ -202,7 +250,12 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-
+        /// <summary>
+        /// method to upload the Image
+        /// </summary>
+        /// <param name="noteId"></param>
+        /// <param name="image"></param>
+        /// <returns></returns>
         public bool UploadImage(long noteId, IFormFile image)
         {
             try

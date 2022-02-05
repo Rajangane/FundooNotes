@@ -23,27 +23,28 @@ namespace FundooNotes.Controllers
         }
         [Authorize]
         [HttpPost("AddCollaborater")]
-        public IActionResult AddCollaborator(long noteID, string collabEmail, long userId)
+        public IActionResult AddCollaborator(long noteID, string collabEmail)
         {
             try
             {
-                userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
+                long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
                 CollaboratorModel collabaoratorModel = new CollaboratorModel();
                 collabaoratorModel.Id = userId;
                 collabaoratorModel.NoteId = noteID;
                 collabaoratorModel.EmailId = collabEmail;
-                if (collaboratorBL.AddCollaborator(collabaoratorModel))
+                var result = collaboratorBL.AddCollaborator(collabaoratorModel);
+                if (result != null)
                 {
-                    return this.Ok(new { Success = true, message = "Collaborator Added Successfully" });
+                    return this.Ok(new { Success = true, message = "Collaborator added successfully", Response = result });
                 }
                 else
                 {
-                    return this.BadRequest(new { Success = false, message = "you dont have permission" });
+                    return this.BadRequest(new { Success = false, message = "User access is denied" });
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.InnerException);
+                return BadRequest(ex.Message);
             }
         }
         [Authorize]
@@ -52,7 +53,7 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                long userId = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
+                long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
                 return collaboratorBL.GetCollaboratorsByID(userId, noteID);
             }
             catch (Exception)
@@ -67,7 +68,7 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                long userId = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
+                long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
                 if (collaboratorBL.RemoveCollaborator(userId, noteID, collaboratorEmail))
                 {
                     return this.Ok(new { success = "true", message = "Collaborator removed successfully" });

@@ -14,7 +14,7 @@ namespace BusinessLayer.Services
         {
             this.UserRL = UserRL;
         }
-        public bool Registration(UserRegistration user)
+        public RegisterResponse Registration(UserRegistration user)
         {
             try
             {

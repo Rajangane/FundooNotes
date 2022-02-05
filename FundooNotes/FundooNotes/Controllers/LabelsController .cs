@@ -24,14 +24,15 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                long userID = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
-                if (labelBL.CreateLabel(userID, noteID, labelName))
+                long userID = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
+                var result = labelBL.CreateLabel(userID, noteID, labelName);
+                if (result != null)
                 {
-                    return this.Ok(new { success = true, message = "Label added successfully" });
+                    return this.Ok(new { success = true, message = "Label added successfully", Response = result });
                 }
                 else
                 {
-                    return this.BadRequest(new { success = false, message = "Label already created" });
+                    return this.BadRequest(new { success = false, message = "unable to add label" });
                 }
             }
             catch (Exception)
@@ -47,10 +48,11 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                long userID = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
-                if (labelBL.RenameLabel(userID, lableName, newLabelName))
+                long userID = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
+                var result = labelBL.RenameLabel(userID, lableName, newLabelName);
+                if (result != null)
                 {
-                    return this.Ok(new { success = true, message = "Label renamed successfully" });
+                    return this.Ok(new { success = true, message = "Label renamed successfully", Response = result });
                 }
                 else
                 {
@@ -70,7 +72,7 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                long userID = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
+                long userID = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
                 if (labelBL.RemoveLabel(userID, lableName))
                 {
                     return this.Ok(new { success = true, message = "Label removed successfully" });
@@ -92,7 +94,7 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                long userID = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
+                long userID = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
                 return labelBL.GetLabelsByNoteID(userID, noteID);
             }
             catch (Exception)

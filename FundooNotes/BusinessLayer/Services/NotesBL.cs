@@ -81,8 +81,21 @@ namespace BusinessLayer.Services
                 throw;
             }
         }
+      
+        public IEnumerable<Notes> GetAllNotes()
+        {
+            try
+            {
+                return NoteRL.GetAllNotes();
+            }
+            catch (Exception)
+            {
 
-   
+                throw;
+            }
+        }
+
+
         public string PinORUnPinNote(long noteid)
         {
             try
@@ -130,5 +143,18 @@ namespace BusinessLayer.Services
                 throw;
             }
         }
+        public IEnumerable<Notes> GetAllNotesUsingRedisCache()
+        {
+            try
+            {
+                return NoteRL.GetAllNotesUsingRedisCache();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
     }
 }

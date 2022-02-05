@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CommonLayer.Models;
+using Microsoft.Extensions.Configuration;
 using RepositoryLayer.AppContexts;
 using RepositoryLayer.Entites;
 using RepositoryLayer.Interfaces;
@@ -18,24 +19,33 @@ namespace RepositoryLayer.Services
             this.context = context;
             this.configuration = config;
         }
-        public bool CreateLabel(long userID, long noteID, string labelName)
+        /// <summary>
+        /// method to create the label
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="noteID"></param>
+        /// <param name="labelName"></param>
+        /// <returns></returns>
+        public Labels CreateLabel(long userID, long noteID, string labelName)
         {
             try
             {
+             
                 Labels labels = new Labels();
-                var findlabel = context.Labels.Where(e => e.LabelName == labelName).FirstOrDefault();
-                if (findlabel == null)
+                var lab = context.Labels.Where(x => x.LabelName == labelName).FirstOrDefault();
+                int result = context.SaveChanges();
+                if (lab == null)
                 {
                     labels.LabelName = labelName;
                     labels.NoteID = noteID;
                     labels.Id = userID;
                     context.Labels.Add(labels);
                     context.SaveChanges();
-                    return true;
+                    return labels;
                 }
                 else
                 {
-                    return false;
+                    return null;
                 }
 
             }
@@ -46,10 +56,17 @@ namespace RepositoryLayer.Services
             }
 
         }
-        public bool RenameLabel(long userID, string oldLabelName, string labelName)
+        /// <summary>
+        /// method to rename the label
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="oldLabelName"></param>
+        /// <param name="labelName"></param>
+        /// <returns></returns>
+        public IEnumerable<Labels> RenameLabel(long userID, string oldLabelName, string labelName)
         {
             IEnumerable<Labels> labels;
-            labels = context.Labels.Where(e => e.Id == userID && e.LabelName == oldLabelName).ToList();
+            labels = context.Labels.Where(x => x.Id == userID && x.LabelName == oldLabelName).ToList();
             if (labels != null)
             {
                 foreach (var label in labels)
@@ -57,18 +74,24 @@ namespace RepositoryLayer.Services
                     label.LabelName = labelName;
                 }
                 context.SaveChanges();
-                return true;
+                return labels;
             }
             else
             {
-                return false;
+                return null;
             }
 
         }
+        /// <summary>
+        /// method to remove the label
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="labelName"></param>
+        /// <returns></returns>
         public bool RemoveLabel(long userID, string labelName)
         {
             IEnumerable<Labels> labels;
-            labels = context.Labels.Where(e => e.Id == userID && e.LabelName == labelName).ToList();
+            labels = context.Labels.Where(x => x.Id == userID && x.LabelName == labelName).ToList();
             if (labels != null)
             {
                 foreach (var label in labels)
@@ -84,11 +107,17 @@ namespace RepositoryLayer.Services
             }
 
         }
+        /// <summary>
+        /// getting all labels by noteId
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="noteID"></param>
+        /// <returns></returns>
         public IEnumerable<Labels> GetLabelsByNoteID(long userID, long noteID)
         {
             try
             {
-                var result = context.Labels.Where(e => e.NoteID == noteID && e.Id == userID).ToList();
+                var result = context.Labels.Where(x => x.NoteID == noteID && x.Id == userID).ToList();
                 if (result != null)
                 {
                     return result;

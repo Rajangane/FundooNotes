@@ -22,10 +22,11 @@ namespace FundooNotes.Controllers
         {
             try
             {
-                if (UserBL.Registration(userRegistration))
+                RegisterResponse respo = this.UserBL.Registration(userRegistration);
+                if(respo.Email == userRegistration.Email)
 
                 {
-                    return this.Ok(new { Success = true, message = "Registration Sucessfull" });
+                    return this.Ok(new { Success = true, message = "Registration Sucessfull",data = respo });
                 }
                 else
                 {

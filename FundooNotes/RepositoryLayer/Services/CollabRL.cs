@@ -19,7 +19,12 @@ namespace RepositoryLayer.Services
             this.context = context;
             _config = config;
         }
-        public bool AddCollaborator(CollaboratorModel collabaoratorModel)
+        /// <summary>
+        /// method to add Collaborator
+        /// </summary>
+        /// <param name="collabaoratorModel"></param>
+        /// <returns></returns>
+        public Collaborator AddCollaborator(CollaboratorModel collabaoratorModel)
         {
             try
             {
@@ -32,11 +37,11 @@ namespace RepositoryLayer.Services
                     collaborator.Id = collabaoratorModel.Id;
                     context.Collaborators.Add(collaborator);
                     var result = context.SaveChanges();
-                    return true;
+                    return collaborator;
                 }
                 else
                 {
-                    return false;
+                    return null;
                 }
             }
             catch (Exception)
@@ -45,11 +50,17 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+        /// <summary>
+        /// getting collaborators by Id
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="noteID"></param>
+        /// <returns></returns>
         public IEnumerable<Collaborator> GetCollaboratorsByID(long userID, long noteID)
         {
             try
             {
-                var result = context.Collaborators.Where(e => e.Id == userID && e.NoteID == noteID).ToList();
+                var result = context.Collaborators.Where(x => x.Id == userID && x.NoteID == noteID).ToList();
                 if (result != null)
                     return result;
                 else
@@ -61,11 +72,18 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+        /// <summary>
+        /// method to remove Collaborator
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="noteID"></param>
+        /// <param name="collabEmail"></param>
+        /// <returns></returns>
         public bool RemoveCollaborator(long userID, long noteID, string collabEmail)
         {
             try
             {
-                var collaborator = context.Collaborators.Where(e => e.CollabEmail == collabEmail && e.NoteID == noteID).FirstOrDefault();
+                var collaborator = context.Collaborators.Where(x => x.CollabEmail == collabEmail && x.NoteID == noteID).FirstOrDefault();
                 if (collaborator != null)
                 {
                     context.Collaborators.Remove(collaborator);

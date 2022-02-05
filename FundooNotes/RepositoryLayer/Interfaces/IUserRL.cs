@@ -7,7 +7,7 @@ namespace RepositoryLayer.Interfaces
 {
     public interface IUserRL
     {
-        public bool Registration(UserRegistration user);
+        public RegisterResponse Registration(UserRegistration user);
         public string Login(UserLogin login);
         public string GenerateJWTToken(string EmailId, long userId);
         public string ForgetPassword(string EmailId);

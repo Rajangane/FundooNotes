@@ -8,7 +8,7 @@ namespace BusinessLayer.Interfaces
 {
     public interface IUserBL
     {
-        public bool Registration(UserRegistration user);
+        public RegisterResponse Registration(UserRegistration user);
         public string Login(UserLogin login);
         public string GenerateJWTToken(string EmailId, long userId);
         public string ForgetPassword(string EmailId);

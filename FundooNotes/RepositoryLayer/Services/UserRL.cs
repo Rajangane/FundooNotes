@@ -23,7 +23,12 @@ namespace RepositoryLayer.Services
             this.context = context;
             this.configuration = config;
         }
-        public bool Registration(UserRegistration user)
+        /// <summary>
+        /// User Registration
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public RegisterResponse Registration(UserRegistration user)
         {
             try
             {
@@ -32,19 +37,22 @@ namespace RepositoryLayer.Services
                 newuser.FirstName = user.Firstname;
                 newuser.LastName = user.Lastname;
                 newuser.Email = user.Email;
-               // newuser.Password = user.Password;
                 newuser.Password = EncryptPassword(user.Password);
                 context.Users.Add(newuser);
                 int result = context.SaveChanges();
                 if(result > 0)
                 {
-                    return true;
+                    RegisterResponse response = new RegisterResponse();
+                    response.FirstName = newuser.FirstName;
+                    response.LastName = newuser.LastName;
+                    response.Email = newuser.Email;
+
+                    return response;
+                   
                  
                 }
-                else
-                {
-                    return false;
-                }
+                return default;
+             
             }
             catch (Exception)
             {
@@ -52,6 +60,11 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+        /// <summary>
+        /// method to encrypt the password
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public string EncryptPassword(string password)
         {
             try
@@ -66,6 +79,11 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+        /// <summary>
+        /// method to decrypt the password
+        /// </summary>
+        /// <param name="encryptpwd"></param>
+        /// <returns></returns>
         public string DecryptPassword(string encryptpwd)
         {
             try
@@ -85,10 +103,16 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+        /// <summary>
+        /// getting the login information
+        /// </summary>
+        /// <param name="userLogin"></param>
+        /// <returns></returns>
         public string Login(UserLogin userLogin)
         {
             try
             {
+
                 User user = new User();
                 user = context.Users.Where(x => x.Email == userLogin.Email).FirstOrDefault();
                 string decPass = DecryptPassword(user.Password);
@@ -98,6 +122,7 @@ namespace RepositoryLayer.Services
                 else
                     return null;
 
+
             }
             catch (Exception)
             {
@@ -105,6 +130,11 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
+        /// <summary>
+        /// method to ClaimTokenById
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         public string ClaimTokenByID(long Id)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -118,6 +148,12 @@ namespace RepositoryLayer.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+        /// <summary>
+        /// method to generate JWT token
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public string GenerateJWTToken(string email, long userId)
         {
             try
@@ -142,7 +178,11 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-     
+        /// <summary>
+        /// ForgotPassword Method
+        /// </summary>
+        /// <param name="EmailId"></param>
+        /// <returns></returns>
         public string ForgetPassword(string EmailId)
         {
             try
@@ -167,7 +207,13 @@ namespace RepositoryLayer.Services
             }
 
         }
-
+        /// <summary>
+        /// method to Reset the Password
+        /// </summary>
+        /// <param name="Email"></param>
+        /// <param name="ConfirmPassword"></param>
+        /// <param name="NewPassword"></param>
+        /// <returns></returns>
         public bool ResetPassword(string Email, string ConfirmPassword, string NewPassword)
         {
             try
