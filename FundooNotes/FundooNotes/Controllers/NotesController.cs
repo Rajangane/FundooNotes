@@ -35,15 +35,17 @@ namespace FundooNotes.Controllers
         }
        [Authorize]
         [HttpPost("AddNotes")]
-        public IActionResult AddNote(NoteModel notes)
+        public IActionResult AddNote(NoteModel notesmodel)
         {
             try
             {
                 long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
-               
-                if (noteBL.AddNote(notes,userId))
+                var result = noteBL.AddNote(notesmodel, userId);
+                if(result != null)
+                //if (noteBL.AddNote(notes,userId))
+
                 {
-                    return this.Ok(new { Success = true, message = "Note Added" });
+                    return this.Ok(new { Success = true, message = "Note Added" , Response = result});
                 }
                 else
                 {
@@ -80,14 +82,14 @@ namespace FundooNotes.Controllers
             }
         }
         [Authorize]
-        [HttpGet("GetAllNotesByID")]
-        public IEnumerable<Notes> GetAllNotesOfUser(int UserId)
+        [HttpGet("GetAllNotesByUserID")]
+        public IEnumerable<Notes> GetAllNotesByUserId(int UserId)
         {
             long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
 
             try
             {
-                return noteBL.GetAllNotesOfUser(UserId);
+                return noteBL.GetAllNotesByUserId(UserId);
             }
             catch (Exception)
             {
@@ -135,10 +137,11 @@ namespace FundooNotes.Controllers
             try
             {
                 long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
-                NoteModel response = noteBL.UpdateNotes(notes,NoteId);
-                if (response != null)
+                var result = noteBL.UpdateNotes(notes, NoteId);
+                //NoteModel response = noteBL.UpdateNotes(notes,NoteId);
+                if (result != null)
                 {
-                    return this.Ok(new { Success = true, message = "Updating a note Sucessfull" });
+                    return this.Ok(new { Success = true, message = "Updating a note Sucessfull", Response = result });
                 }
                 else
                 {
@@ -151,69 +154,99 @@ namespace FundooNotes.Controllers
             }
         }
         [Authorize]
-        [HttpPut]
-        [Route("Pin")]
-        public IActionResult PinORUnPinNote(long Noteid)
+        [HttpPut("ColoreNote")]
+        public IActionResult ColorNotes(long noteID, string color)
         {
             try
             {
                 long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
-                var result = this.noteBL.PinORUnPinNote(Noteid);
+                var result = noteBL.ColorNote(userId, noteID, color);
                 if (result != null)
                 {
-                    return this.Ok(new { Status = true, Message = result });
-                }
-                return this.BadRequest(new { Status = false, Message = result });
-            }
-            catch (Exception ex)
-            {
-                return this.BadRequest(new { Status = false, Message = ex.Message, InnerException = ex.InnerException });
-            }
-        }
-        [Authorize]
-        [HttpPut]
-        [Route("Archive")]
-        public IActionResult ArchiveORUnarchiveNote(long Noteid)
-        {
-            try
-            {
-               
-                long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
-                if (noteBL.ArchiveORUnarchiveNote(userId,Noteid))
-                {
-                    return this.Ok(new { Status = true, Message = "Archieve sucessfull" });
+                    return this.Ok(new { Success = true, message = "Color changed successfully", Response = result });
                 }
                 else
                 {
-                    return this.BadRequest(new { Status = false, Message = "Archieve unsucessfull" });
+                    return this.BadRequest(new { Success = false, message = "User access denied" });
                 }
+
             }
-
-
-            catch (Exception ex)
+            catch (Exception)
             {
-                return this.BadRequest(new { Status = false, Message = ex.Message, InnerException = ex.InnerException });
+
+                throw;
             }
         }
         [Authorize]
-        [HttpDelete]
-        [Route("Trash")]
-        public IActionResult TrashOrRestoreNote(long Noteid)
+        [HttpPut]
+        public IActionResult PinNotes(long noteID)
         {
             try
             {
                 long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
-                var result = this.noteBL.TrashOrRestoreNote(Noteid);
+                var result = noteBL.PinORUnPinNote(userId, noteID);
                 if (result != null)
                 {
-                    return this.Ok(new { Status = true, Message = result });
+                    return this.Ok(new { Success = true, message = "Pin changed successfully", Response = result });
+                }
+                else
+                {
+                    return this.BadRequest(new { Success = false, message = "User access denied" });
                 }
 
-                return this.BadRequest(new { Status = false, Message = result });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return this.BadRequest(new { Status = false, Message = ex.Message, InnerException = ex.InnerException });
+
+                throw;
+            }
+        }
+        [Authorize]
+        [HttpPut("ArchiveOrUnArchiveNote")]
+        public IActionResult ArchieveNotes(long noteID)
+        {
+            try
+            {
+                long userId = Convert.ToInt32(User.Claims.FirstOrDefault(e => e.Type == "Id").Value);
+                var result = noteBL.ArchiveORUnarchiveNote(userId, noteID);
+                if (result != null)
+                {
+                    return this.Ok(new { Success = true, message = "Archieve changed successfully", Response = result });
+                }
+                else
+                {
+                    return this.BadRequest(new { Success = false, message = "User access denied" });
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        [Authorize]
+        [HttpPut("Trash")]
+        public IActionResult TrashNotes(long noteID)
+        {
+            try
+            {
+                long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
+                var result = noteBL.TrashOrRestoreNote(userId, noteID);
+                if (result != null)
+                {
+                    return this.Ok(new { Success = true, message = "Trash changed successfully", Response = result });
+                }
+                else
+                {
+                    return this.BadRequest(new { Success = false, message = "User access denied" });
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
         [Authorize]
@@ -224,9 +257,11 @@ namespace FundooNotes.Controllers
             try
             {
                 long userId = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "Id").Value);
-                if (this.noteBL.UploadImage(noteId, Image))
+                //if (this.noteBL.UploadImage(noteId, Image))
+                var result = noteBL.UploadImage(noteId, Image);
+                if (result != null)
                 {
-                    return this.Ok(new { Status = true, Message = "Upload Image Successfully" });
+                    return this.Ok(new { Status = true, Message = "Upload Image Successfully" ,Response = result});
                 }
                 return this.BadRequest(new { Status = false, Message = "Not Uploaded!" });
             }

@@ -10,18 +10,16 @@ namespace BusinessLayer.Interfaces
     public interface INotesBL
     {
 
-        public bool AddNote(NoteModel notes, long UserId);
-
-
+        public Notes AddNote(NoteModel notesmodel, long UserId);
         NoteModel UpdateNotes(NoteModel notes, long Noteid);
+        public Notes ColorNote(long userId, long noteID, string color);
         bool DeleteNotes(int id);
-        string PinORUnPinNote(long noteid);
-        string TrashOrRestoreNote(long noteid);
-        string ColorNote(long noteId, string color);
-        bool ArchiveORUnarchiveNote(long userId, long noteid);
-        IEnumerable<Notes> GetAllNotesOfUser(int UserId);
+        public Notes PinORUnPinNote(long userId, long noteID);
+        public Notes TrashOrRestoreNote(long userId, long noteID);
+        public Notes ArchiveORUnarchiveNote(long userId, long noteID);
+        public IEnumerable<Notes> GetAllNotesByUserId(int UserId);
         public IEnumerable<Notes> GetAllNotes();
-        public bool UploadImage(long noteId, IFormFile image);
+        public Notes UploadImage(long noteId, IFormFile image);
         public IEnumerable<Notes> GetAllNotesUsingRedisCache();
 
     }

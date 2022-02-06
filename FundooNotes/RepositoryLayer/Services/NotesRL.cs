@@ -28,28 +28,36 @@ namespace RepositoryLayer.Services
         /// <param name="UserId"></param>
         /// <param name="noteid"></param>
         /// <returns></returns>
-        public bool ArchiveORUnarchiveNote(long UserId, long noteid)
+        public Notes ArchiveORUnarchiveNote(long userId, long noteID)
         {
             try
             {
-                var Note = this.context.Notes.FirstOrDefault(x => x.Id == UserId && x.NoteId == noteid);
-                if (Note.IsArchive == true)
+                Notes note = context.Notes.FirstOrDefault(e => e.Id == userId && e.NoteId == noteID);
+                if (note != null)
                 {
-                   Note.IsArchive = false;
-                    this.context.SaveChanges();
-                    return true;
+                    bool checkarch = note.IsArchive;
+                    if (checkarch == true)
+                    {
+                        note.IsArchive = false;
+                    }
+                    if (checkarch == false)
+                    {
+                        note.IsArchive = true;
+                    }
+                    context.SaveChanges();
+                    return note;
                 }
                 else
                 {
-                    Note.IsArchive = true;
-                    this.context.SaveChanges();
-                    return false;
+                    return null;
                 }
             }
             catch (Exception)
             {
+
                 throw;
             }
+
         }
         /// <summary>
         /// method to color the note
@@ -57,28 +65,28 @@ namespace RepositoryLayer.Services
         /// <param name="noteId"></param>
         /// <param name="color"></param>
         /// <returns></returns>
-        public string ColorNote(long noteId, string color)
+        public Notes ColorNote(long userId, long noteID, string color)
         {
             try
             {
-                var Note = this.context.Notes.FirstOrDefault(x => x.NoteId == noteId);
-                if (Note.Color != color)
+                Notes note = context.Notes.FirstOrDefault(e => e.Id == userId && e.NoteId == noteID);
+                if (note != null)
                 {
-                    Note.Color = color;
-                    this.context.SaveChanges();
-                    return "Note color is changed.";
+                    note.Color = color;
+                    context.SaveChanges();
+                    return note;
                 }
                 else
                 {
-                    Note.IsTrash = true;
-                    this.context.SaveChanges();
-                    return "choose different color";
+                    return null;
                 }
             }
             catch (Exception)
             {
+
                 throw;
             }
+
         }
         /// <summary>
         /// method to get all notes using Redis cache
@@ -119,30 +127,30 @@ namespace RepositoryLayer.Services
         /// <param name="notes"></param>
         /// <param name="UserId"></param>
         /// <returns></returns>
-        public bool AddNote(NoteModel notes, long UserId)
+        public Notes AddNote(NoteModel notesmodel, long UserId)
         {
             try
             {
                 Notes newNotes = new Notes();
                 newNotes.Id = UserId;
-                newNotes.Title = notes.Title;
-                newNotes.Message = notes.Message;
-                newNotes.Remainder = notes.Remainder;
-                newNotes.Color = notes.Color;
-                newNotes.Image = notes.Image;
-                newNotes.IsArchive = notes.IsArchive;
-                newNotes.IsPin = notes.IsPin;
-                newNotes.IsTrash = notes.IsTrash;
-                newNotes.Createat = notes.Createat;
+                newNotes.Title = notesmodel.Title;
+                newNotes.Message = notesmodel.Message;
+                newNotes.Remainder = notesmodel.Remainder;
+                newNotes.Color = notesmodel.Color;
+                newNotes.Image = notesmodel.Image;
+                newNotes.IsArchive = notesmodel.IsArchive;
+                newNotes.IsPin = notesmodel.IsPin;
+                newNotes.IsTrash = notesmodel.IsTrash;
+                newNotes.Createat = notesmodel.Createat;
                 //Adding the data to database
                 this.context.Notes.Add(newNotes);
                 //Save the changes in database
                 int result = this.context.SaveChanges();
                 if (result > 0)
                 {
-                    return true;
+                    return newNotes;
                 }
-                return false;
+                return null;
             }
             catch (Exception)
             {
@@ -155,7 +163,7 @@ namespace RepositoryLayer.Services
         /// </summary>
         /// <param name="UserId"></param>
         /// <returns></returns>
-        public IEnumerable<Notes> GetAllNotesOfUser(int UserId)
+        public IEnumerable<Notes> GetAllNotesByUserId(int UserId)
         {
             return context.Notes.Where(Y => Y.Id == UserId).ToList();
         }
@@ -164,56 +172,72 @@ namespace RepositoryLayer.Services
         {
             return context.Notes.ToList();
         }
-        public string PinORUnPinNote(long noteid)
+        public Notes PinORUnPinNote(long userId, long noteID)
         {
             try
             {
-                var Note = this.context.Notes.FirstOrDefault(x => x.NoteId == noteid);
-                if (Note.IsPin == true)
+                Notes note = context.Notes.FirstOrDefault(x => x.Id == userId && x.NoteId == noteID);
+                if (note != null)
                 {
-                    Note.IsPin = false;
-                    this.context.SaveChanges();
-                    return "Note is UnPinned";
+                    bool checkpin = note.IsPin;
+                    if (checkpin == true)
+                    {
+                        note.IsPin = false;
+                    }
+                    if (checkpin == false)
+                    {
+                        note.IsPin = true;
+                    }
+                    context.SaveChanges();
+                    return note;
                 }
                 else
                 {
-                    Note.IsPin = true;
-                    this.context.SaveChanges();
-                    return "Note is Pinned";
+                    return null;
                 }
             }
             catch (Exception)
             {
+
                 throw;
             }
+
         }
         /// <summary>
         /// method Trash or Restore the note
         /// </summary>
         /// <param name="noteid"></param>
         /// <returns></returns>
-        public string TrashOrRestoreNote(long noteid)
+        public Notes TrashOrRestoreNote(long userId, long noteID)
         {
             try
             {
-                var Note = this.context.Notes.FirstOrDefault(x => x.NoteId == noteid);
-                if (Note.IsTrash == true)
+                Notes note = context.Notes.FirstOrDefault(e => e.Id == userId && e.NoteId == noteID);
+                if (note != null)
                 {
-                    Note.IsTrash = false;
-                    this.context.SaveChanges();
-                    return "Note is Restored.";
+                    bool checktrash = note.IsTrash;
+                    if (checktrash == true)
+                    {
+                        note.IsTrash = false;
+                    }
+                    if (checktrash == false)
+                    {
+                        note.IsTrash = true;
+                    }
+                    context.SaveChanges();
+                    return note;
                 }
                 else
                 {
-                    Note.IsTrash = true;
-                    this.context.SaveChanges();
-                    return "Note is Trash";
+                    return null;
                 }
             }
             catch (Exception)
             {
+
                 throw;
             }
+
         }
         /// <summary>
         /// method to Update a note
@@ -256,7 +280,7 @@ namespace RepositoryLayer.Services
         /// <param name="noteId"></param>
         /// <param name="image"></param>
         /// <returns></returns>
-        public bool UploadImage(long noteId, IFormFile image)
+        public Notes UploadImage(long noteId, IFormFile image)
         {
             try
             {
@@ -279,10 +303,10 @@ namespace RepositoryLayer.Services
                     context.Notes.Attach(notes);
                     notes.Image = uploadResult.Uri.ToString();
                     context.SaveChanges();
-                    return true;
+                    return notes;
                 }
                 else
-                    return false;
+                    return null;
             }
             catch (Exception)
             {

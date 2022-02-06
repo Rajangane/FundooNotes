@@ -12,6 +12,10 @@ namespace CommonLayer.Models
     public class MSMQModel
     {
         MessageQueue msg = new MessageQueue();
+        /// <summary>
+        /// method to send Msmq msg
+        /// </summary>
+        /// <param name="Token"></param>
         public void MsmqSender(string Token)
         {
             //setting the queue path where we want to store the message
@@ -27,24 +31,34 @@ namespace CommonLayer.Models
             msg.BeginReceive();
             msg.Close();
         }
+        /// <summary>
+        /// method to receive message
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void MessageQueue_ReceiveCompleted(object sender, ReceiveCompletedEventArgs e)
         {
             var message = msg.EndReceive(e.AsyncResult);
             string token = message.Body.ToString();
             string Subject = "Fundoo Notes Password Reset";
-            string Body = token;
+            string Body = token;//$"Fundoo Notes Reset Password: <a href=http://localhost:4200/resetPassword/{token}> Click Here</a>";
             string mailReceiver = GetEmailFromToken(token);
 
             var smtpClient = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
-                Credentials = new NetworkCredential("rajanganep28@gmail.com", "Secret@123"),//give dummy gmail
+                Credentials = new NetworkCredential("rajanganep28@gmail.com", "Secret@123"),
                 EnableSsl = true,
             };
             smtpClient.Send("rajanganep28@gmail.com", mailReceiver, Subject, Body);
             msg.BeginReceive();
 
         }
+        /// <summary>
+        /// method to get email from token
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
 
         public static string GetEmailFromToken(string token)
         {

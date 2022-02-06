@@ -17,11 +17,11 @@ namespace BusinessLayer.Services
             this.NoteRL = NoteRL;
         }
 
-        public bool AddNote(NoteModel notes, long UserId)
+        public Notes AddNote(NoteModel notesmodel, long UserId)
         {
             try
             {
-                return NoteRL.AddNote(notes, UserId);
+                return NoteRL.AddNote(notesmodel, UserId);
             }
             catch (Exception)
             {
@@ -30,28 +30,29 @@ namespace BusinessLayer.Services
             }
         }
 
-        
 
-        public bool ArchiveORUnarchiveNote(long userId, long noteid)
+
+        public Notes ArchiveORUnarchiveNote(long userId, long noteID)
         {
             try
             {
-                return this.NoteRL.ArchiveORUnarchiveNote(userId,noteid);
+                return NoteRL.ArchiveORUnarchiveNote(userId, noteID);
             }
             catch (Exception)
             {
+
                 throw;
             }
         }
-
-        public string ColorNote(long noteId, string color)
+        public Notes ColorNote(long userId, long noteID, string color)
         {
             try
             {
-                return this.NoteRL.ColorNote(noteId, color);
+                return NoteRL.ColorNote(userId, noteID, color);
             }
             catch (Exception)
             {
+
                 throw;
             }
         }
@@ -69,11 +70,11 @@ namespace BusinessLayer.Services
             }
         }
 
-        public IEnumerable<Notes> GetAllNotesOfUser(int UserId)
+        public IEnumerable<Notes> GetAllNotesByUserId(int UserId)
         {
             try
             {
-                return NoteRL.GetAllNotesOfUser(UserId);
+                return NoteRL.GetAllNotesByUserId(UserId);
             }
             catch (Exception)
             {
@@ -96,26 +97,28 @@ namespace BusinessLayer.Services
         }
 
 
-        public string PinORUnPinNote(long noteid)
+        public Notes PinORUnPinNote(long userId, long noteID)
         {
             try
             {
-                return this.NoteRL.PinORUnPinNote(noteid);
+                return NoteRL.PinORUnPinNote(userId, noteID);
             }
             catch (Exception)
             {
+
                 throw;
             }
         }
 
-        public string TrashOrRestoreNote(long noteid)
+        public Notes TrashOrRestoreNote(long userId, long noteID)
         {
             try
             {
-                return this.NoteRL.TrashOrRestoreNote(noteid);
+                return NoteRL.TrashOrRestoreNote(userId, noteID);
             }
             catch (Exception)
             {
+
                 throw;
             }
         }
@@ -132,7 +135,7 @@ namespace BusinessLayer.Services
                 throw;
             }
         }
-        public bool UploadImage(long noteId, IFormFile image)
+        public Notes UploadImage(long noteId, IFormFile image)
         {
             try
             {
